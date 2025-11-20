@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Bert Search</title>
+        <style>
+            :root {
+                --bg: #0b0f13;
+                --surface: #14181c;
+                --muted: #9aa0a6;
+                --text: #e8eef3;
+                --accent: #970302;
+                --glass: rgba(255, 255, 255, 0.03);
+            }
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+            html,
+            body {
+                height: 100%;
+            }
+            body {
+                font-family: "Google Sans", Roboto, Arial, sans-serif;
+                background: linear-gradient(180deg, var(--bg), #071018);
+                color: var(--text);
+                -webkit-font-smoothing: antialiased;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                padding: 32px;
+            }
+            .page {
+                width: 100%;
+                max-width: 900px;
+                text-align: center;
+            }
+            .logo {
+                font-weight: 500;
+                font-size: 64px;
+                letter-spacing: -1px;
+                margin-bottom: 6px;
+                display: inline-block;
+                color: var(--text);
+            }
+            .logo .brand {
+                display: block;
+                font-size: 28px;
+                font-weight: 400;
+                margin-top: 8px;
+                color: var(--muted);
+            }
+            .powered {
+                display: block;
+                font-size: 12px;
+                color: var(--muted);
+                margin-top: 6px;
+            }
+
+            .search-wrap {
+                margin-top: 28px;
+            }
+            .search-box {
+                width: 100%;
+                max-width: 640px;
+                margin: 0 auto;
+                padding: 12px 16px;
+                border-radius: 999px;
+                background: var(--surface);
+                box-shadow:
+                    0 6px 20px rgba(0, 0, 0, 0.6),
+                    inset 0 -1px 0 rgba(255, 255, 255, 0.02);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.04);
+            }
+            .icon {
+                font-size: 18px;
+                color: var(--muted);
+                width: 26px;
+                text-align: center;
+                opacity: 0.9;
+            }
+            input[type="text"] {
+                flex: 1;
+                background: transparent;
+                border: 0;
+                outline: 0;
+                color: var(--text);
+                font-size: 18px;
+                padding: 6px 0;
+            }
+            input::placeholder {
+                color: var(--muted);
+            }
+            .buttons {
+                margin-top: 20px;
+                display: flex;
+                justify-content: center;
+                gap: 12px;
+            }
+            .btn {
+                padding: 10px 18px;
+                border-radius: 999px;
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                background: transparent;
+                color: var(--text);
+                cursor: pointer;
+                font-size: 14px;
+            }
+            .btn.primary {
+                border-radius: 50%;
+                width: 42px;
+                height: 42px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #970302;
+                background: #970302;
+                color: #0b1220;
+                border: none;
+                padding: 10px 18px;
+            }
+            .btn:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+
+            .search-info {
+                margin-top: 18px;
+                color: var(--muted);
+                font-size: 13px;
+            }
+            .results {
+                margin-top: 22px;
+                text-align: left;
+            }
+            .result-item {
+                padding: 14px;
+                border-radius: 8px;
+                background: var(--glass);
+                margin-bottom: 12px;
+                border: 1px solid rgba(255, 255, 255, 0.02);
+            }
+            .result-title a {
+                color: var(--text);
+                text-decoration: none;
+                font-size: 16px;
+                font-weight: 700;
+            }
+            .result-title a:visited {
+                color: #970302;
+            }
+            .result-snippet {
+                color: var(--muted);
+                font-size: 14px;
+                margin-top: 6px;
+            }
+
+            .footer {
+                margin-top: 36px;
+                color: var(--muted);
+                font-size: 13px;
+            }
+
+            @media (max-width: 640px) {
+                .logo {
+                    font-size: 44px;
+                }
+                .logo .brand {
+                    font-size: 18px;
+                }
+            }
+        </style>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+        />
+    </head>
+    <body>
+        <div class="page">
+            <div class="logo">
+                Bert Search
+                <span class="brand">powered by MediaWiki api</span>
+            </div>
+
+            <div class="search-wrap">
+                <div class="search-box" role="search">
+                    <input
+                        id="q"
+                        type="text"
+                        placeholder="Search Wikipedia with BERT semantic ranking"
+                        onkeypress="if(event.key==='Enter') doSearch()"
+                        autocomplete="off"
+                    />
+                    <button
+                        id="go"
+                        class="btn primary search-icon"
+                        onclick="doSearch()"
+                    >
+                        <i class="fa fa-search" style="font-size: 24px"></i>
+                    </button>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn" onclick="doSearch()">
+                        Bert Search
+                    </button>
+                    <button class="btn" onclick="lucky()">I feel lucky</button>
+                </div>
+
+                <div id="searchInfo" class="search-info"></div>
+                <div
+                    id="error"
+                    class="search-info"
+                    style="color: #ff9b9b; display: none"
+                ></div>
+                <div id="results" class="results"></div>
+            </div>
+
+            <div class="footer">
+                Search powered by Wikipedia and a local BERT ranking service.
+            </div>
+        </div>
+
+        <script>
+            async function doSearch() {
+                const q = document.getElementById("q").value.trim();
+                if (!q) return;
+                const info = document.getElementById("searchInfo");
+                const results = document.getElementById("results");
+                const err = document.getElementById("error");
+                const go = document.getElementById("go");
+                go.disabled = true; // go.textContent = 'Searching...';err.style.display='none';info.textContent='';results.innerHTML='';
+
+                const start = performance.now();
+                try {
+                    const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&origin=*&srlimit=10`;
+                    const wr = await fetch(wikiUrl);
+                    const wj = await wr.json();
+                    if (!wj.query || !wj.query.search)
+                        throw new Error("No results found");
+
+                    const wikiResults = wj.query.search.map((item) => ({
+                        title: item.title,
+                        snippet: item.snippet.replace(/<[^>]*>/g, ""),
+                        pageid: item.pageid,
+                    }));
+
+                    const rankResp = await fetch("http://localhost:5000/rank", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            query: q,
+                            documents: wikiResults,
+                        }),
+                    });
+                    if (!rankResp.ok)
+                        throw new Error(
+                            "BERT ranking service unavailable. Make sure the Python backend is running on port 5000.",
+                        );
+                    const ranked = await rankResp.json();
+                    const end = performance.now();
+                    const time = ((end - start) / 1000).toFixed(2);
+
+                    info.textContent = `About ${ranked.results.length} results. ${time} seconds.`;
+
+                    results.innerHTML = ranked.results
+                        .map(
+                            (r) => `
+          <div class="result-item">
+            <div style="font-size:13px;color:var(--muted);">en.wikipedia.org <span style="float:right;color:var(--accent);font-weight:600">${(r.score * 100).toFixed(0)}% match</span></div>
+            <div class="result-title"><a href="https://en.wikipedia.org/?curid=${r.pageid}" target="_blank">${r.title}</a></div>
+            <div class="result-snippet">${r.snippet}...</div>
+          </div>
+        `,
+                        )
+                        .join("");
+                } catch (e) {
+                    err.style.display = "block";
+                    err.textContent = e.message;
+                    results.innerHTML = "";
+                    info.textContent = "";
+                } finally {
+                    go.disabled = false; // go.textContent='Search';
+                }
+            }
+
+            function lucky() {
+                const q = document.getElementById("q").value.trim();
+                if (!q) return;
+                doSearch();
+            }
+        </script>
+    </body>
+</html>
